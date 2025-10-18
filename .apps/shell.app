@@ -1,6 +1,6 @@
 {
   "name": "Shell",
-  "file" "/apps/shell",
+  "file" "/apps/shell.lua",
   "tags: {
     "console",
     "terminal",
