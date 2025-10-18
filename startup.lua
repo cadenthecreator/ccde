@@ -1,5 +1,6 @@
 --os.pullEvent = os.pullEventRaw
 local window = require("libs.window")
+local nft = require "cc.image.nft"
 local wrap = require("cc.strings").wrap
 _G.threads = {}
 _G.windows = {}
@@ -64,6 +65,7 @@ local function windows()
 end
 
 local function desktop()
+    local image = nft.load(".wallpaper.nft")
     local w, h = term.getSize()
     term.setBackgroundColor(colors.lightGray)
     term.clear()
@@ -71,6 +73,9 @@ local function desktop()
     term.setTextColor(colors.white)
     term.setBackgroundColor(colors.gray)
     term.write(" Desktop ")
+    if image then
+        nft.draw(image,1,1)
+    end
 end
 local threading = require("libs.threading")
 local compat = require("libs.compat")
