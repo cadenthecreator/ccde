@@ -1,7 +1,7 @@
 {
-  "name": "Worm",
-  "file" "/apps/worm.lua",
-  "tags: {
+  name = "Worm",
+  file = "/apps/worm.lua",
+  tags = {
     "snake",
     "games",
   },
