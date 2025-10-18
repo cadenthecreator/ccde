@@ -53,6 +53,8 @@ end
 local function clamp(v, lo, hi) return (v < lo) and lo or ((v > hi) and hi or v) end
 
 function lib.create(name, w, h, x, y)
+    if not x then x = 1 end
+    if not y then y = 1 end
     w = math.floor(w + 0.5)
     h = math.floor(h + 0.5)
     x = math.floor(x + 0.5)
