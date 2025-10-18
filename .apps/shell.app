@@ -1,8 +1,8 @@
 {
   "name": "Shell",
-  "file" "/apps/shell"
+  "file" "/apps/shell",
   "tags: {
     "console",
-    "terminal"
-  }
+    "terminal",
+  },
 }
