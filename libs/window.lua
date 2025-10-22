@@ -65,6 +65,8 @@ function lib.create(name, w, h, x, y)
         name = name,
         w = w,
         h = h,
+        min_w = 3,
+        min_h = 3,
         x = x or 1,
         y = y or 2,
 
@@ -75,6 +77,8 @@ function lib.create(name, w, h, x, y)
         textColor = colors.white,
         bgColor = colors.black,
         cursorBlink = false,
+        resizable = true,
+        draggable = true,
         decorations = true,
         alwaysOnTop = false,
         alwaysBelow = false,
@@ -96,6 +100,7 @@ function lib.create(name, w, h, x, y)
             init_col(xi)
             for yy = 1, t.h do
                 local cell = t.buffer[xi][yy]
+                if not cell then cell = { char = " ", tc = t.textColor, bc = t.bgColor } end
                 cell.char, cell.tc, cell.bc = " ", t.textColor, t.bgColor
             end
         end
@@ -285,6 +290,8 @@ function lib.create(name, w, h, x, y)
     function t.key(key, is_held) end
 
     function t.key_up(key) end
+
+    function t.resized(w,h) end
 
     function t.closeRequested() t.closing = true end
 

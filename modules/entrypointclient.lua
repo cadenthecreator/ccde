@@ -1,10 +1,10 @@
 local max_distance = 220
 
-local pullEvent = os.pullEventRaw
+_G.network = {}
+
 local modem = peripheral.find("modem",function (s) return peripheral.wrap(s).isWireless() end)
 term.clear()
 term.setCursorPos(1,1)
-_G.network = {}
 if not modem then
     return
 end
@@ -14,7 +14,7 @@ local canidate = {id = -1, distance = max_distance}
 parallel.waitForAny(function () repeat sleep(0.1) until canidate.id ~= -1 end,
 function ()
     while true do
-        local _, _, channel, _, msg, distance = pullEvent("modem_message")
+        local _, _, channel, _, msg, distance = os.pullEvent("modem_message")
         if channel == 15125 then
             if msg.protocol == "entrypoint_advertise" then
                 if distance < canidate.distance then
@@ -30,18 +30,19 @@ modem.transmit(15125,15125,{protocol="entrypoint_connect",sender=os.getComputerI
 
 local function receive()
     while true do
-        local _, _, channel, _, msg, distance = pullEvent("modem_message")
+        local _, _, channel, _, msg, distance = os.pullEvent("modem_message")
         if channel == 15125 then
             if msg.protocol == "heartbeat" and msg.target == os.getComputerID() and msg.sender == canidate.id then
                 last_heartbeat = os.epoch("utc")
                 modem.transmit(15125,15125,{protocol="heartbeat_response",sender=os.getComputerID(),target=canidate.id})
+                canidate.distance = distance
                 if distance > max_distance then
                     modem.transmit(15125,15125,{protocol="entrypoint_disconnect",sender=os.getComputerID(),target=canidate.id})
                     canidate = {id = -1, distance = max_distance}
                     parallel.waitForAny(function () repeat sleep(0.1) until canidate.id ~= -1 end,
                     function ()
                         while true do
-                            local _, _, channel, _, msg, distance = pullEvent("modem_message")
+                            local _, _, channel, _, msg, distance = os.pullEvent("modem_message")
                             if channel == 15125 then
                                 if msg.protocol == "entrypoint_advertise" then
                                     if distance < canidate.distance then
@@ -73,6 +74,12 @@ function _G.network.send(msg,destination)
     if not destination then error("No destination provided",2) end
     message_queue[#message_queue+1] = {protocol="packet",content=msg,destination=destination,sender=os.getComputerID(),hops=0}
 end
+function _G.network.getID()
+    return canidate.id
+end
+function _G.network.getDistance()
+    return canidate.distance
+end
 
 local function connect()
     while true do
@@ -81,7 +88,7 @@ local function connect()
             parallel.waitForAny(function () repeat sleep(0.1) until canidate.id ~= -1 end,
             function ()
                 while true do
-                    local _, _, channel, _, msg, distance = pullEvent("modem_message")
+                    local _, _, channel, _, msg, distance = os.pullEvent("modem_message")
                     if channel == 15125 then
                         if msg.protocol == "entrypoint_advertise" then
                             if distance < canidate.distance then

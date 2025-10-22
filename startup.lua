@@ -1,4 +1,5 @@
 --os.pullEvent = os.pullEventRaw
+
 local window = require("libs.window")
 local nft = require "cc.image.nft"
 local wrap = require("cc.strings").wrap
@@ -42,18 +43,34 @@ local function windows()
             term.setCursorPos(win.x, win.y + cy - 1)
             local line, fg, bg = "", "", ""
             for cx = 1, win.w do
-                local cell = win.buffer[cx][cy]
-                line = line .. cell.char
-                fg = fg .. ("0123456789abcdef"):sub(math.log(cell.tc, 2) + 1, math.log(cell.tc, 2) + 1)
-                bg = bg .. ("0123456789abcdef"):sub(math.log(cell.bc, 2) + 1, math.log(cell.bc, 2) + 1)
+                if win.buffer[cx] then
+                    local cell = win.buffer[cx][cy]
+                    if cell then
+                        line = line .. cell.char
+                        fg = fg .. ("0123456789abcdef"):sub(math.log(cell.tc, 2) + 1, math.log(cell.tc, 2) + 1)
+                        bg = bg .. ("0123456789abcdef"):sub(math.log(cell.bc, 2) + 1, math.log(cell.bc, 2) + 1)
+                    else
+                        line = line .. " "
+                        fg = fg .. "0"
+                        bg = bg .. "f"
+                    end
+                else 
+                    line = line .. " "
+                    fg = fg .. "0"
+                    bg = bg .. "f"
+                end
             end
             term.blit(line, fg, bg)
         end
         if win.decorations then
             term.setCursorPos(win.x, win.y - 1)
             term.setTextColor(colors.white)
-            term.setBackgroundColor(colors.gray)
-            term.write("X " .. win.name .. string.rep(" ", win.w - #win.name - 2))
+            term.setBackgroundColor(colors.blue)
+            term.write(string.sub("X " .. win.name .. string.rep(" ", win.w - #win.name - 2),1,win.w))
+            if win.resizable then
+                term.setCursorPos(win.x+win.w-1,win.y+win.h-1)
+                term.write("\127")
+            end
         end
         term.setCursorPos(win.x + win.cursorX - 1, win.y + win.cursorY - 1)
         term.setCursorBlink(win.cursorBlink)
@@ -70,16 +87,28 @@ local function desktop()
     local w, h = term.getSize()
     term.setBackgroundColor(colors.white)
     term.clear()
-    term.setCursorPos(1, 1)
-    term.setTextColor(colors.white)
-    term.setBackgroundColor(colors.gray)
-    term.clearLine()
-    term.write(" "..((_G.windows[#_G.windows] or {name=""}).name or "").." ")
     if image then
         nft.draw(image,1,1)
     elseif paint_image then
         paintutils.drawImage(paint_image,1,2)
     end
+end
+
+local function bars()
+    local cx,cy = term.getCursorPos()
+    local w, h = term.getSize()
+    term.setCursorPos(1, 1)
+    term.setTextColor(colors.white)
+    term.setBackgroundColor(colors.gray)
+    term.clearLine()
+    term.write(" "..((_G.windows[#_G.windows] or {name=""}).name or "").." ")
+    local rightbar = ""
+    if network and network.getID and network.getDistance and network.getID() ~= -1 then
+        rightbar = "id: "..tostring(network.getID()).." dist: "..tostring(math.floor(network.getDistance()+0.5))
+    end
+    term.setCursorPos(w-(#rightbar),1)
+    term.write(rightbar)
+    term.setCursorPos(cx,cy)
 end
 local threading = require("libs.threading")
 local compat = require("libs.compat")
@@ -93,6 +122,7 @@ local function render()
     while true do
         desktop()
         windows()
+        bars()
         sleep(1 / 20)
     end
 end

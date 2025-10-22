@@ -520,6 +520,7 @@ function lib.setupENV(win)
     if http then load_apis("rom/apis/http") end
     if turtle then load_apis("rom/apis/turtle") end
     if pocket then load_apis("rom/apis/pocket") end
+    env.shell = shell
     env._ENV = env
     env._G = env
 
@@ -534,7 +535,7 @@ local function generate_id(length)
     return id
 end
 
-local function runInRuntime(func, win)
+local function runInRuntime(func, win, close_handled)
     expect(1, func, "function")
     expect(2, win, "table")
     local co = coroutine.create(func)
@@ -570,8 +571,14 @@ local function runInRuntime(func, win)
         os.queueEvent("key_up_" .. winid, key, winid)
     end
 
-    function win.closeRequested()
-        run = false
+    function win.resized()
+        os.queueEvent("term_resize_"..winid, winid)
+    end
+
+    if close_handled then
+        function win.closeRequested()
+            run = false
+        end
     end
 
     local function escape_lua_pattern(s)
@@ -628,6 +635,11 @@ local function runInRuntime(func, win)
                     data.n = data.n - 1
                     event_data = data
                 end
+            elseif data[1] == "term_resize" then
+                if data[#data] == winid then
+                    data.n = data.n - 1
+                    event_data = data
+                end
             else
                 event_data = data
             end
@@ -637,13 +649,13 @@ local function runInRuntime(func, win)
     end
 end
 
-function lib.runFunc(func, win)
-    runInRuntime(setfenv(func, lib.setupENV(win)), win)
+function lib.runFunc(func, win, close_handled)
+    runInRuntime(setfenv(func, lib.setupENV(win)), win, close_handled)
 end
 
-function lib.runFile(file, win)
+function lib.runFile(file, win, close_handled)
     local func = loadfile(file)
-    runInRuntime(setfenv(func, lib.setupENV(win)), win)
+    runInRuntime(setfenv(func, lib.setupENV(win)), win, close_handled)
 end
 
 return lib
