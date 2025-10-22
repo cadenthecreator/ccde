@@ -1,7 +1,7 @@
 local window = require("libs.window")
 local threading = require("libs.threading")
 local x, y = term.getSize()
-local win = window.create("Shell", x / 3, y / 1.4, x / 2 - ((x / 3) / 2), y / 2 - ((y / 1.5) / 2))
+local win = window.create("Launcher", x / 3, y / 1.4, x / 2 - ((x / 3) / 2), y / 2 - ((y / 1.5) / 2))
 win.decorations = false
 win.alwaysOnTop = true
 local apps = {}

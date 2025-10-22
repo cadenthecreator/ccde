@@ -66,15 +66,19 @@ end
 
 local function desktop()
     local image = nft.load(".wallpaper.nft")
+    local paint_image = paintutils.loadImage(".wallpaper.nfp")
     local w, h = term.getSize()
-    term.setBackgroundColor(colors.lightGray)
+    term.setBackgroundColor(colors.white)
     term.clear()
     term.setCursorPos(1, 1)
     term.setTextColor(colors.white)
     term.setBackgroundColor(colors.gray)
-    term.write(" Desktop ")
+    term.clearLine()
+    term.write(" "..((_G.windows[#_G.windows] or {name=""}).name or "").." ")
     if image then
         nft.draw(image,1,1)
+    elseif paint_image then
+        paintutils.drawImage(paint_image,1,2)
     end
 end
 local threading = require("libs.threading")
