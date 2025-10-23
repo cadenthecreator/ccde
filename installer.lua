@@ -29,3 +29,6 @@ download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/apps/la
 download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/.apps/adventure.app",".apps/adventure.app")
 download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/.apps/shell.app",".apps/shell.app")
 download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/.apps/worm.app",".apps/worm.app")
+download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/.wallpaper.nfp",".wallpaper.nfp")
+fs.delete(shell.getRunningProgram())
+os.reboot()
