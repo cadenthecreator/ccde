@@ -1,0 +1,31 @@
+local expect = require "cc.expect".expect
+local function download_to(url,path)
+    expect(1, url, "string")
+    expect(2, path, "string")
+    term.write(path)
+    if not http.checkURL(url) then error("URL is not valid" ,2) end
+    local data = http.get(url).readAll()
+    fs.makeDir(fs.getDir(path))
+    local file = fs.open(path,"w")
+    if not file then error("Failed to open file", 2) end
+    file.write(data)
+    file.close()
+    print(" OK")
+end
+
+download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/startup.lua","startup.lua")
+download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/modules/interactions.lua","modules/interactions.lua")
+download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/modules/keybinds.lua","modules/keybinds.lua")
+download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/modules/launcher.lua","modules/launcher.lua")
+download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/modules/entrypointclient.lua","modules/entrypointclient.lua")
+download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/libs/keybinds.lua","libs/keybinds.lua")
+download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/libs/compat.lua","libs/compat.lua")
+download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/libs/threading.lua","libs/threading.lua")
+download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/libs/window.lua","libs/window.lua")
+download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/apps/adventure.lua","apps/adventure.lua")
+download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/apps/shell.lua","apps/shell.lua")
+download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/apps/worm.lua","apps/worm.lua")
+download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/apps/launcher.lua","apps/launcher.lua")
+download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/.apps/adventure.app",".apps/adventure.app")
+download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/.apps/shell.app",".apps/shell.app")
+download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/.apps/worm.app",".apps/worm.app")
