@@ -99,8 +99,97 @@ function lib.setupENV(win)
             term[k] = wrap(k)
         end
     end
-    term.redirect(win)
-    local function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
+    
+    function write(sText)
+        expect(1, sText, "string", "number")
+
+        local w, h = term.getSize()
+        local x, y = term.getCursorPos()
+
+        local nLinesPrinted = 0
+        local function newLine()
+            if y + 1 <= h then
+                term.setCursorPos(1, y + 1)
+            else
+                term.setCursorPos(1, h)
+                term.scroll(1)
+            end
+            x, y = term.getCursorPos()
+            nLinesPrinted = nLinesPrinted + 1
+        end
+
+        -- Print the line with proper word wrapping
+        sText = tostring(sText)
+        while #sText > 0 do
+            local whitespace = string.match(sText, "^[ \t]+")
+            if whitespace then
+                -- Print whitespace
+                term.write(whitespace)
+                x, y = term.getCursorPos()
+                sText = string.sub(sText, #whitespace + 1)
+            end
+
+            local newline = string.match(sText, "^\n")
+            if newline then
+                -- Print newlines
+                newLine()
+                sText = string.sub(sText, 2)
+            end
+
+            local text = string.match(sText, "^[^ \t\n]+")
+            if text then
+                sText = string.sub(sText, #text + 1)
+                if #text > w then
+                    -- Print a multiline word
+                    while #text > 0 do
+                        if x > w then
+                            newLine()
+                        end
+                        term.write(text)
+                        text = string.sub(text, w - x + 2)
+                        x, y = term.getCursorPos()
+                    end
+                else
+                    -- Print a word normally
+                    if x + #text - 1 > w then
+                        newLine()
+                    end
+                    term.write(text)
+                    x, y = term.getCursorPos()
+                end
+            end
+        end
+
+        return nLinesPrinted
+    end
+
+    function print(...)
+        local nLinesPrinted = 0
+        local nLimit = select("#", ...)
+        for n = 1, nLimit do
+            local s = tostring(select(n, ...))
+            if n < nLimit then
+                s = s .. "\t"
+            end
+            nLinesPrinted = nLinesPrinted + write(s)
+        end
+        nLinesPrinted = nLinesPrinted + write("\n")
+        return nLinesPrinted
+    end
+
+    function printError(...)
+        local oldColour
+        if term.isColour() then
+            oldColour = term.getTextColour()
+            term.setTextColour(colors.red)
+        end
+        print(...)
+        if term.isColour() then
+            term.setTextColour(oldColour)
+        end
+    end
+
+    function read(_sReplaceChar, _tHistory, _fnComplete, _sDefault)
         expect(1, _sReplaceChar, "string", "nil")
         expect(2, _tHistory, "table", "nil")
         expect(3, _fnComplete, "function", "nil")
@@ -217,6 +306,7 @@ function lib.setupENV(win)
                 nPos = nPos + 1
                 recomplete()
                 redraw()
+
             elseif sEvent == "paste" then
                 -- Pasted text
                 clear()
@@ -224,6 +314,7 @@ function lib.setupENV(win)
                 nPos = nPos + #param
                 recomplete()
                 redraw()
+
             elseif sEvent == "key" then
                 if param == keys.enter or param == keys.numPadEnter then
                     -- Enter/Numpad Enter
@@ -233,6 +324,7 @@ function lib.setupENV(win)
                         redraw()
                     end
                     break
+
                 elseif param == keys.left then
                     -- Left
                     if nPos > 0 then
@@ -241,6 +333,7 @@ function lib.setupENV(win)
                         recomplete()
                         redraw()
                     end
+
                 elseif param == keys.right then
                     -- Right
                     if nPos < #sLine then
@@ -253,6 +346,7 @@ function lib.setupENV(win)
                         -- Accept autocomplete
                         acceptCompletion()
                     end
+
                 elseif param == keys.up or param == keys.down then
                     -- Up or down
                     if nCompletion then
@@ -270,6 +364,7 @@ function lib.setupENV(win)
                             end
                         end
                         redraw()
+
                     elseif _tHistory then
                         -- Cycle history
                         clear()
@@ -299,7 +394,9 @@ function lib.setupENV(win)
                         end
                         uncomplete()
                         redraw()
+
                     end
+
                 elseif param == keys.backspace then
                     -- Backspace
                     if nPos > 0 then
@@ -310,6 +407,7 @@ function lib.setupENV(win)
                         recomplete()
                         redraw()
                     end
+
                 elseif param == keys.home then
                     -- Home
                     if nPos > 0 then
@@ -318,6 +416,7 @@ function lib.setupENV(win)
                         recomplete()
                         redraw()
                     end
+
                 elseif param == keys.delete then
                     -- Delete
                     if nPos < #sLine then
@@ -326,6 +425,7 @@ function lib.setupENV(win)
                         recomplete()
                         redraw()
                     end
+
                 elseif param == keys["end"] then
                     -- End
                     if nPos < #sLine then
@@ -334,10 +434,13 @@ function lib.setupENV(win)
                         recomplete()
                         redraw()
                     end
+
                 elseif param == keys.tab then
                     -- Tab (accept autocomplete)
                     acceptCompletion()
+
                 end
+
             elseif sEvent == "mouse_click" or sEvent == "mouse_drag" and param == 1 then
                 local _, cy = term.getCursorPos()
                 if param1 >= sx and param1 <= w and param2 == cy then
@@ -345,10 +448,12 @@ function lib.setupENV(win)
                     nPos = math.min(math.max(nScroll + param1 - sx, 0), #sLine)
                     redraw()
                 end
+
             elseif sEvent == "term_resize" then
                 -- Terminal resized
                 w = term.getSize()
                 redraw()
+
             end
         end
 
@@ -360,94 +465,6 @@ function lib.setupENV(win)
         return sLine
     end
 
-
-    local function write(sText)
-        expect(1, sText, "string", "number")
-
-        local w, h = term.getSize()
-        local x, y = term.getCursorPos()
-
-        local nLinesPrinted = 0
-        local function newLine()
-            if y + 1 <= h then
-                term.setCursorPos(1, y + 1)
-            else
-                term.setCursorPos(1, h)
-                term.scroll(1)
-            end
-            x, y = term.getCursorPos()
-            nLinesPrinted = nLinesPrinted + 1
-        end
-
-        -- Print the line with proper word wrapping
-        sText = tostring(sText)
-        while #sText > 0 do
-            local whitespace = string.match(sText, "^[ \t]+")
-            if whitespace then
-                -- Print whitespace
-                term.write(whitespace)
-                x, y = term.getCursorPos()
-                sText = string.sub(sText, #whitespace + 1)
-            end
-
-            local newline = string.match(sText, "^\n")
-            if newline then
-                -- Print newlines
-                newLine()
-                sText = string.sub(sText, 2)
-            end
-
-            local text = string.match(sText, "^[^ \t\n]+")
-            if text then
-                sText = string.sub(sText, #text + 1)
-                if #text > w then
-                    -- Print a multiline word
-                    while #text > 0 do
-                        if x > w then
-                            newLine()
-                        end
-                        term.write(text)
-                        text = string.sub(text, w - x + 2)
-                        x, y = term.getCursorPos()
-                    end
-                else
-                    -- Print a word normally
-                    if x + #text - 1 > w then
-                        newLine()
-                    end
-                    term.write(text)
-                    x, y = term.getCursorPos()
-                end
-            end
-        end
-
-        return nLinesPrinted
-    end
-    function print(...)
-        local nLinesPrinted = 0
-        local nLimit = select("#", ...)
-        for n = 1, nLimit do
-            local s = tostring(select(n, ...))
-            if n < nLimit then
-                s = s .. "\t"
-            end
-            nLinesPrinted = nLinesPrinted + write(s)
-        end
-        nLinesPrinted = nLinesPrinted + write("\n")
-        return nLinesPrinted
-    end
-
-    local function printError(...)
-        local oldColour
-        if term.isColour() then
-            oldColour = term.getTextColour()
-            term.setTextColour(colors.red)
-        end
-        print(...)
-        if term.isColour() then
-            term.setTextColour(oldColour)
-        end
-    end
     local tAPIsLoading = {}
 
     local bAPIError = false
@@ -521,9 +538,10 @@ function lib.setupENV(win)
     if turtle then load_apis("rom/apis/turtle") end
     if pocket then load_apis("rom/apis/pocket") end
     env.shell = shell
+    env.settings = settings
     env._ENV = env
     env._G = env
-
+    term.redirect(win)
     return env
 end
 

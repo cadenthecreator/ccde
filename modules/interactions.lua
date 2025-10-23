@@ -39,7 +39,7 @@ while true do
                 dragging = win
                 resizing = true
                 bringtofront(indx)
-            elseif ((win.y - 1 == data[4] and win.x + 1 <= data[3] and win.x + win.w >= data[3] and data[2] == 1 and win.decorations) or (win.y <= data[4] and win.x <= data[3] and win.y + win.h > data[4] and win.x + win.w > data[3] and key[keys["leftAlt"] and win.draggable])) then
+            elseif ((win.y - 1 == data[4] and win.x + 1 <= data[3] and win.x + win.w >= data[3] and data[2] == 1 and win.decorations) or (win.y <= data[4] and win.x <= data[3] and win.y + win.h > data[4] and win.x + win.w > data[3] and key[keys["leftAlt"]] and win.draggable)) then
                 dragging = win
                 offsetX = win.x - data[3]
                 offsetY = win.y - data[4]
@@ -63,7 +63,7 @@ while true do
                 threading.addThread(function()dragging.resized(dragging.w,dragging.h)end)
             else
                 dragging.x = data[3] + offsetX
-                dragging.y = data[4] + offsetY
+                dragging.y = math.max(data[4] + offsetY,3)
             end
         else
             for indx = #_G.windows, 1, -1 do
