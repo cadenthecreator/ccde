@@ -1,10 +1,9 @@
 os.pullEvent = os.pullEventRaw
 
-local image = nft.load(".wallpaper.nft")
-    local paint_image = paintutils.loadImage(".wallpaper.nfp")
-
 local window = require("libs.window")
 local nft = require "cc.image.nft"
+local image = nft.load(".wallpaper.nft")
+local paint_image = paintutils.loadImage(".wallpaper.nfp")
 local wrap = require("cc.strings").wrap
 _G.threads = {}
 _G.windows = {}
