@@ -1,4 +1,7 @@
---os.pullEvent = os.pullEventRaw
+os.pullEvent = os.pullEventRaw
+
+local image = nft.load(".wallpaper.nft")
+    local paint_image = paintutils.loadImage(".wallpaper.nfp")
 
 local window = require("libs.window")
 local nft = require "cc.image.nft"
@@ -82,8 +85,6 @@ local function windows()
 end
 
 local function desktop()
-    local image = nft.load(".wallpaper.nft")
-    local paint_image = paintutils.loadImage(".wallpaper.nfp")
     local w, h = term.getSize()
     term.setBackgroundColor(colors.white)
     term.clear()
