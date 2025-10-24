@@ -33,6 +33,7 @@ while true do
     sleep()
 end
 
+local _, nm = assert(pcall(assert(load(handle.readAll(), "nmapi", nil, _ENV))))
 handle.close()
 local state = assert(nm.createState(args.url, args.username, args.password))
 
