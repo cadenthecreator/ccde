@@ -23,6 +23,7 @@ if netmount then
     settings.set("netmount.username", read())
     write("Password: ")
     settings.set("netmount.password", read("\7"))
+    settings.set("netmount.path", "cloud")
     settings.save()
 end
 
