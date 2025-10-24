@@ -541,6 +541,7 @@ function lib.setupENV(win)
     env.settings = settings
     env._ENV = env
     env._G = env
+    env.http = http
     term.redirect(win)
     return env
 end
@@ -617,6 +618,7 @@ local function runInRuntime(func, win, close_handled)
         end
         local data = table.pack(os.pullEvent())
         data[1] = data[1]:gsub(escape_lua_pattern "_" .. winid, "")
+        event_data = { n = 0 }
         if data[1] == filter or filter == nil or data[1] == "terminated" then
             if data[1] == "char" then
                 if data[#data] == winid then
@@ -661,8 +663,6 @@ local function runInRuntime(func, win, close_handled)
             else
                 event_data = data
             end
-        else
-            event_data = { n = 0 }
         end
     end
 end

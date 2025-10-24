@@ -52,7 +52,7 @@ end
 
 local function clamp(v, lo, hi) return (v < lo) and lo or ((v > hi) and hi or v) end
 
-function lib.create(name, w, h, x, y)
+function lib.create(name, w, h, x, y, do_not_add)
     local sx,sy = term.getSize()
     if not x then x = sx/2-w/2 end
     if not y then y = sy/2-h/2 end
@@ -337,8 +337,10 @@ function lib.create(name, w, h, x, y)
 
     -- initialize
     t.clear()
-    add(_G.windows, t)
-    lib.reorder()
+    if not do_not_add then
+        add(_G.windows, t)
+        lib.reorder()
+    end
     return t
 end
 

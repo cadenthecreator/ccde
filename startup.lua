@@ -8,8 +8,28 @@ local wrap = require("cc.strings").wrap
 _G.threads = {}
 _G.windows = {}
 _G.keybinds = {}
-local term = term.native()
+local nterm = term.native()
+local sx,sy = term.getSize()
+local term = window.create("",sx,sy,1,1,true)
 local event = { n = 0 }
+
+local function drawPixelInternal(xPos, yPos)
+    term.setCursorPos(xPos, yPos)
+    term.write(" ")
+end
+
+local function drawImage(image, xPos, yPos)
+    for y = 1, #image do
+        local tLine = image[y]
+        for x = 1, #tLine do
+            if tLine[x] > 0 then
+                term.setBackgroundColor(tLine[x])
+                drawPixelInternal(x + xPos - 1, y + yPos - 1)
+            end
+        end
+    end
+end
+
 local function threads()
     for id, thr in pairs(_G.threads) do
         if thr then
@@ -75,7 +95,7 @@ local function windows()
             end
         end
         term.setCursorPos(win.x + win.cursorX - 1, win.y + win.cursorY - 1)
-        term.setCursorBlink(win.cursorBlink)
+        nterm.setCursorBlink(win.cursorBlink)
         if win.closing then
             _G.windows[id] = nil
         end
@@ -90,7 +110,7 @@ local function desktop()
     if image then
         nft.draw(image,1,1)
     elseif paint_image then
-        paintutils.drawImage(paint_image,1,2)
+        drawImage(paint_image,1,2)
     end
 end
 
@@ -118,11 +138,40 @@ for _, i in ipairs(fs.list("/modules")) do
     end
 end
 
+local function screen()
+    local cx,cy = term.getCursorPos()
+    for cy = 1, term.h do
+            nterm.setCursorPos(term.x, term.y + cy - 1)
+            local line, fg, bg = "", "", ""
+            for cx = 1, term.w do
+                if term.buffer[cx] then
+                    local cell = term.buffer[cx][cy]
+                    if cell then
+                        line = line .. cell.char
+                        fg = fg .. ("0123456789abcdef"):sub(math.log(cell.tc, 2) + 1, math.log(cell.tc, 2) + 1)
+                        bg = bg .. ("0123456789abcdef"):sub(math.log(cell.bc, 2) + 1, math.log(cell.bc, 2) + 1)
+                    else
+                        line = line .. " "
+                        fg = fg .. "0"
+                        bg = bg .. "f"
+                    end
+                else 
+                    line = line .. " "
+                    fg = fg .. "0"
+                    bg = bg .. "f"
+                end
+            end
+            nterm.blit(line, fg, bg)
+        end
+    nterm.setCursorPos(cx,cy)
+end
+
 local function render()
     while true do
         desktop()
         windows()
         bars()
+        screen()
         sleep(1 / 20)
     end
 end

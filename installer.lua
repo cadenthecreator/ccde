@@ -13,6 +13,19 @@ local function download_to(url,path)
     print(" OK")
 end
 
+write("Do you want to setup netmount?\n(Y/n)")
+local netmount = read():sub(1,1):lower() == "n"
+
+if netmount then
+    write("URL: ")
+    settings.set("netmount.url", read())
+    write("Username: ")
+    settings.set("netmount.username", read())
+    write("Password: ")
+    settings.set("netmount.password", read("\7"))
+    settings.save()
+end
+
 download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/startup.lua","startup.lua")
 download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/modules/interactions.lua","modules/interactions.lua")
 download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/modules/keybinds.lua","modules/keybinds.lua")
@@ -30,3 +43,7 @@ download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/.apps/a
 download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/.apps/shell.app",".apps/shell.app")
 download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/.apps/worm.app",".apps/worm.app")
 download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/.wallpaper.nfp",".wallpaper.nfp")
+
+if netmount then
+    download_to("https://github.com/cadenthecreator/ccde/raw/refs/heads/main/modules/netmount.lua","modules/netmount.lua")
+end
