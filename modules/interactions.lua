@@ -63,7 +63,7 @@ while true do
                 threading.addThread(function()dragging.resized(dragging.w,dragging.h)end)
             else
                 dragging.x = data[3] + offsetX
-                dragging.y = math.max(data[4] + offsetY,3)
+                dragging.y = math.max(data[4],2) + offsetY
             end
         else
             for indx = #_G.windows, 1, -1 do
