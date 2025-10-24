@@ -13,8 +13,8 @@ local function download_to(url,path)
     print(" OK")
 end
 
-write("Do you want to setup netmount?\n(Y/n)")
-local netmount = read():sub(1,1):lower() == "n"
+write("Do you want to setup netmount?\n(Y/n) ")
+local netmount = read():sub(1,1):lower() ~= "n"
 
 if netmount then
     write("URL: ")
