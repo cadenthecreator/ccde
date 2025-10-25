@@ -116,6 +116,7 @@ function lib.create(name, w, h, x, y, do_not_add)
         if y0 < 1 or y0 > t.h then return end
         for xi = 1, t.w do
             init_col(xi)
+            if not t.buffer[xi][y0] then t.buffer[xi][y0] = { char = " ", tc = t.textColor, bc = t.bgColor } end
             local cell = t.buffer[xi][y0]
             cell.char, cell.tc, cell.bc = " ", t.textColor, t.bgColor
         end
@@ -191,6 +192,7 @@ function lib.create(name, w, h, x, y, do_not_add)
             local x = t.cursorX + i - 1
             if x >= 1 and x <= t.w and y0 >= 1 and y0 <= t.h then
                 init_col(x)
+                if not t.buffer[x][y0] then t.buffer[x][y0] = { char = " ", tc = t.textColor, bc = t.bgColor } end
                 local cell = t.buffer[x][y0]
                 cell.char = str:sub(i, i)
                 cell.tc, cell.bc = t.textColor, t.bgColor

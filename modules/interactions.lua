@@ -56,6 +56,7 @@ while true do
             end
         end
     elseif data[1] == "mouse_drag" then
+        data[4] =  math.max(data[4],2)
         if data[2] == 1 and dragging then
             if resizing then
                 dragging.w = math.max(data[3] - dragging.x + 1,dragging.min_w)
@@ -63,7 +64,7 @@ while true do
                 threading.addThread(function()dragging.resized(dragging.w,dragging.h)end)
             else
                 dragging.x = data[3] + offsetX
-                dragging.y = math.max(data[4],2) + offsetY
+                dragging.y = data[4] + offsetY
             end
         else
             for indx = #_G.windows, 1, -1 do
